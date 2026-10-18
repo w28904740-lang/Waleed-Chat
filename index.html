@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waleed Chat | وليد شات</title>
+<style>
+:root{--accent:#18a879;--panel:#ffffff;--ink:#17212b;--muted:#6b7c88;--line:#e3e9ed;--wall:#eaf1f4}
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:var(--wall);color:var(--ink);min-height:100vh}
+button,input{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:11px 14px;background:var(--accent);color:white;font-weight:bold}
+button:disabled{opacity:.5;cursor:not-allowed}input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;outline-color:var(--accent);background:white}
+.hidden{display:none!important}.muted{color:var(--muted);font-size:13px}.brand{display:flex;align-items:center;gap:10px;font-weight:bold;font-size:23px}.logo{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--accent);color:white;font-size:22px}
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:18px}.auth-card{width:min(430px,100%);background:white;border-radius:22px;padding:25px;box-shadow:0 12px 40px #17212b12}.auth-card .brand{margin-bottom:22px}.auth-card h2{margin:8px 0}.field{margin:12px 0}.field label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}.auth-switch{display:flex;gap:8px;margin:18px 0}.auth-switch button{flex:1;background:#eaf4f0;color:#276b55}.auth-switch button.active{background:var(--accent);color:white}.error{color:#b42318;font-size:13px;min-height:18px;margin:8px 0}
+.app{height:100vh;min-height:540px;max-width:1200px;margin:auto;padding:14px;display:grid;grid-template-columns:340px 1fr;gap:14px}.sidebar,.chat-panel{background:var(--panel);border-radius:18px;overflow:hidden;min-height:0;border:1px solid #dfe7eb}.sidebar{display:flex;flex-direction:column}.side-head{padding:17px;border-bottom:1px solid var(--line)}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.small-btn{padding:8px 10px;font-size:12px;background:#eef7f3;color:#176c4f}.searchbox{margin-top:14px}.results,.chat-list{overflow:auto}.section-label{font-size:12px;color:var(--muted);padding:13px 16px 5px}.user-row{width:100%;display:flex;align-items:center;gap:11px;padding:12px 15px;border-radius:0;background:transparent;color:var(--ink);text-align:right;border-bottom:1px solid #f0f3f5}.user-row:hover,.user-row.selected{background:#edf8f3}.avatar{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border-radius:50%;background:#d9f3e7;color:#13734f;font-weight:bold}.user-info{min-width:0;flex:1}.user-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-info small{display:block;color:var(--muted);margin-top:4px;font-size:12px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#a7b0b6;margin-left:5px}.dot.on{background:#19b67a}.side-foot{margin-top:auto;border-top:1px solid var(--line);padding:12px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.chat-panel{display:flex;flex-direction:column;position:relative}.chat-head{padding:14px 18px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line);background:#fff}.chat-head .user-info small{font-size:12px}.chat-actions{margin-right:auto;display:flex;gap:6px}.chat-actions button{font-size:12px;padding:8px;background:#edf7f2;color:#176c4f}.messages{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:9px;background-color:var(--wall);background-size:cover;background-position:center}.bubble{max-width:min(78%,520px);padding:10px 12px;border-radius:13px;background:white;box-shadow:0 1px 2px #0000000a;align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap}.bubble.mine{align-self:flex-end;background:#d9f8e9}.time{display:block;font-size:10px;color:#6c7b82;margin-top:5px;text-align:left}.composer{padding:12px;display:flex;gap:8px;border-top:1px solid var(--line);background:white}.composer input{flex:1}.empty{height:100%;display:grid;place-items:center;text-align:center;padding:25px;color:var(--muted)}.empty .big{font-size:50px;margin-bottom:12px}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#17212b;color:white;padding:10px 15px;border-radius:10px;z-index:9;max-width:90%;font-size:13px}
+@media(max-width:720px){.app{height:100dvh;min-height:0;padding:0;display:block}.sidebar,.chat-panel{height:100%;border-radius:0;border:0}.app.chat-open .sidebar{display:none}.app:not(.chat-open) .chat-panel{display:none}.chat-head{padding:11px}.back-btn{display:inline-block!important}.messages{padding:14px}.bubble{max-width:88%}}
+.back-btn{display:none}
+</style>
+</head>
+<body>
+<section id="auth" class="auth-wrap">
+  <div class="auth-card">
+    <div class="brand"><div class="logo">W</div><div>Waleed Chat<div class="muted">مساحتك الخاصة للكلام مع أصحابك</div></div></div>
+    <div class="auth-switch"><button id="showLogin" class="active" type="button">تسجيل الدخول</button><button id="showRegister" type="button">حساب جديد</button></div>
+    <form id="authForm">
+      <div id="nameField" class="field hidden"><label for="name">اسمك</label><input id="name" autocomplete="name" placeholder="اكتب اسمك"></div>
+      <div class="field"><label for="phone">رقم الموبايل</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="مثال: 01012345678" required></div>
+      <div class="field"><label for="password">كلمة السر (8 أحرف على الأقل)</label><input id="password" type="password" autocomplete="current-password" minlength="8" required></div>
+      <div id="authError" class="error" role="alert"></div>
+      <button id="authSubmit" style="width:100%" type="submit">دخول</button>
+    </form>
+    <p class="muted">لا يوجد تحقق برسالة SMS. رقم الموبايل مجرد معرّف للحساب.</p>
+  </div>
+</section>
+
+<main id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="side-head">
+      <div class="topline"><div class="brand"><div class="logo">W</div><span>Waleed Chat</span></div><button id="logout" class="small-btn" type="button">خروج</button></div>
+      <div class="searchbox"><input id="search" placeholder="ابحث برقم الموبايل..." inputmode="tel" aria-label="ابحث برقم الموبايل"></div>
+    </div>
+    <div id="searchResults" class="results"></div>
+    <div class="section-label">المحادثات</div>
+    <div id="chatList" class="chat-list"></div>
+    <div class="side-foot"><span id="myName" class="muted"></span><button id="wallpaperBtn" class="small-btn" type="button">تغيير الخلفية</button><input id="wallpaperFile" type="file" accept="image/*" class="hidden"></div>
+  </aside>
+  <section class="chat-panel">
+    <div id="chatHead" class="chat-head hidden">
+      <button id="backBtn" class="small-btn back-btn" type="button">رجوع</button>
+      <div id="chatAvatar" class="avatar">؟</div><div class="user-info"><strong id="chatName"></strong><small id="chatStatus">محادثة خاصة</small></div>
+      <div class="chat-actions"><button id="clearBg" type="button">إزالة الخلفية</button></div>
+    </div>
+    <div id="emptyState" class="empty"><div><div class="big">💬</div><strong>أهلًا بيك في Waleed Chat</strong><p>ابحث عن صاحبك برقم موبايله عشان تبدأوا الكلام.</p></div></div>
+    <div id="messages" class="messages hidden" aria-live="polite"></div>
+    <form id="composer" class="composer hidden"><input id="messageInput" maxlength="2000" placeholder="اكتب رسالتك..." autocomplete="off" required><button type="submit">إرسال</button></form>
+  </section>
+</main>
+<div id="toast" class="toast hidden" role="status"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let mode = "login", me = null, activeUser = null, socket = null, online = new Set(), seenMessages = new Set();
+const backgrounds = { default: "" };
+
+function toast(msg){ $("toast").textContent=msg; $("toast").classList.remove("hidden"); setTimeout(()=>$("toast").classList.add("hidden"),2800); }
+async function api(url, options={}) {
+  const res = await fetch(url,{...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || "حصل خطأ، جرّب تاني.");
+  return data;
+}
+function setMode(next){
+  mode=next;
+  $("showLogin").classList.toggle("active",mode==="login");
+  $("showRegister").classList.toggle("active",mode==="register");
+  $("nameField").classList.toggle("hidden",mode!=="register");
+  $("authSubmit").textContent=mode==="login"?"دخول":"إنشاء حساب";
+  $("authError").textContent="";
+}
+$("showLogin").onclick=()=>setMode("login");
+$("showRegister").onclick=()=>setMode("register");
+$("authForm").addEventListener("submit",async e=>{
+  e.preventDefault(); $("authError").textContent="جاري الدخول...";
+  try{
+    const body={phone:$("phone").value.trim(),password:$("password").value};
+    const data=mode==="login"?await api("/api/login",{method:"POST",body:JSON.stringify(body)}):
+      await api("/api/register",{method:"POST",body:JSON.stringify({...body,name:$("name").value.trim()})});
+    me=data.user; showApp();
+  }catch(err){$("authError").textContent=err.message;}
+});
+function showApp(){
+  $("auth").classList.add("hidden");$("app").classList.remove("hidden");$("myName").textContent="حسابك: "+me.name;
+  socket=io();
+  socket.on("connect_error",()=>toast("تعذر الاتصال الفوري. حدّث الصفحة."));
+  socket.on("presence",p=>{if(p.online)online.add(p.userId);else online.delete(p.userId);updatePresence();});
+  socket.on("new-message",m=>{if(!seenMessages.has(m.id)){seenMessages.add(m.id);if(activeUser&&(m.fromId===activeUser.id||m.toId===activeUser.id))addMessage(m);refreshChats();}});
+  refreshChats();loadOnline();
+}
+async function loadOnline(){try{const d=await api("/api/online");online=new Set(d.userIds);updatePresence();}catch{}}
+function updatePresence(){
+  document.querySelectorAll("[data-user-id]").forEach(el=>{
+    const id=el.dataset.userId; const dot=el.querySelector(".dot"); if(dot)dot.classList.toggle("on",online.has(id));
+  });
+  if(activeUser)$("chatStatus").textContent=online.has(activeUser.id)?"متصل الآن":"غير متصل";
+}
+function userRow(user, selected=false){
+  const b=document.createElement("button");b.type="button";b.className="user-row"+(selected?" selected":"");b.dataset.userId=user.id;
+  const avatar=document.createElement("div");avatar.className="avatar";avatar.textContent=(user.name||"?").slice(0,1);
+  const info=document.createElement("div");info.className="user-info";
+  const strong=document.createElement("strong");strong.textContent=user.name;
+  const small=document.createElement("small");small.innerHTML='<span class="dot '+(online.has(user.id)?"on":"")+'"></span>';small.append(document.createTextNode(user.phone));
+  info.append(strong,small);b.append(avatar,info);b.onclick=()=>openChat(user);return b;
+}
+let searchTimer;
+$("search").addEventListener("input",()=>{
+  clearTimeout(searchTimer);const q=$("search").value.trim();
+  searchTimer=setTimeout(async()=>{
+    $("searchResults").innerHTML="";
+    if(q.replace(/\D/g,"").length<4)return;
+    try{
+      const d=await api("/api/search?phone="+encodeURIComponent(q));
+      if(!d.users.length){$("searchResults").innerHTML='<div class="section-label">مفيش حسابات مطابقة.</div>';return;}
+      $("searchResults").append(Object.assign(document.createElement("div"),{className:"section-label",textContent:"نتائج البحث"}));
+      d.users.forEach(u=>$("searchResults").append(userRow(u)));
+    }catch(err){toast(err.message);}
+  },250);
+});
+async function refreshChats(){
+  try{const d=await api("/api/chats");$("chatList").innerHTML="";
+    if(!d.users.length){$("chatList").innerHTML='<div class="section-label">لسه مفيش محادثات. ابحث عن صاحبك فوق.</div>';return;}
+    d.users.forEach(u=>$("chatList").append(userRow(u,activeUser&&activeUser.id===u.id)));
+  }catch{}
+}
+async function openChat(user){
+  activeUser=user;$("app").classList.add("chat-open");$("emptyState").classList.add("hidden");$("chatHead").classList.remove("hidden");$("messages").classList.remove("hidden");$("composer").classList.remove("hidden");
+  $("chatName").textContent=user.name;$("chatAvatar").textContent=user.name.slice(0,1);$("chatStatus").textContent=online.has(user.id)?"متصل الآن":"غير متصل";
+  $("messages").innerHTML="";seenMessages.clear();
+  if(socket)socket.emit("join-chat",user.id);
+  try{const d=await api("/api/messages/"+encodeURIComponent(user.id));d.messages.forEach(addMessage);$("messages").scrollTop=$("messages").scrollHeight;}
+  catch(err){toast(err.message);}
+  refreshChats();$("messageInput").focus();
+}
+function addMessage(m){
+  if(seenMessages.has(m.id) && document.querySelector('[data-message-id="'+m.id+'"]'))return;
+  seenMessages.add(m.id);
+  const div=document.createElement("div");div.className="bubble"+(m.fromId===me.id?" mine":"");div.dataset.messageId=m.id;
+  const text=document.createElement("div");text.textContent=m.text;
+  const time=document.createElement("span");time.className="time";time.textContent=new Date(m.createdAt).toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"});
+  div.append(text,time);$("messages").append(div);$("messages").scrollTop=$("messages").scrollHeight;
+}
+$("composer").addEventListener("submit",async e=>{
+  e.preventDefault();if(!activeUser)return;const input=$("messageInput"),text=input.value.trim();if(!text)return;
+  input.value="";
+  try{const d=await api("/api/messages",{method:"POST",body:JSON.stringify({toId:activeUser.id,text})});addMessage(d.message);refreshChats();}
+  catch(err){toast(err.message);input.value=text;}
+});
+$("logout").onclick=async()=>{try{await api("/api/logout",{method:"POST"});}catch{}location.reload();};
+$("backBtn").onclick=()=>$("app").classList.remove("chat-open");
+$("wallpaperBtn").onclick=()=>$("wallpaperFile").click();
+$("wallpaperFile").addEventListener("change",e=>{
+  const file=e.target.files[0];if(!file)return;
+  if(!file.type.startsWith("image/"))return toast("اختار صورة فقط.");
+  if(file.size>5*1024*1024)return toast("اختار صورة أقل من 5 ميجابايت.");
+  const reader=new FileReader();reader.onload=()=>{document.querySelectorAll(".messages").forEach(el=>{el.style.backgroundImage=`linear-gradient(#eaf1f480,#eaf1f480),url("${reader.result}")`;});toast("اتغيرت الخلفية على جهازك ده.");};reader.readAsDataURL(file);
+});
+$("clearBg").onclick=()=>{$("messages").style.backgroundImage="";};
+async function init(){try{const d=await api("/api/me");if(d.user){me=d.user;showApp();}}catch{}}
+init();
+</script>
+</body>
+</html>
